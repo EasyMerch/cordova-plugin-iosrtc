@@ -8,6 +8,7 @@
 var fs = require('fs'),
 	path = require('path'),
 	xcode = require('xcode'),
+	cordova_ios = require('cordova-ios'),
 	xmlEntities = new (require('html-entities').XmlEntities)(),
 	DISABLE_IOSRTC_HOOK = process.env.DISABLE_IOSRTC_HOOK ? true : false,
 	IPHONEOS_DEPLOYMENT_TARGET = process.env.IPHONEOS_DEPLOYMENT_TARGET || '12',
@@ -138,10 +139,10 @@ module.exports = function (context) {
 	var projectRoot = context.opts.projectRoot,
 		projectName = getProjectName(projectRoot),
 		platformPath = path.join(projectRoot, 'platforms', 'ios'),
-		platformProjectPath = path.join(platformPath, projectName),
+		iosProject = new cordova_ios('ios', platformPath),
+		platformProjectPath = iosProject.locations.xcodeCordovaProj,
 		xcconfigPath = path.join(platformPath, '/cordova/build.xcconfig'),
-		xcodeProjectName = projectName + '.xcodeproj',
-		xcodeProjectConfigPath = path.join(platformPath, xcodeProjectName, 'project.pbxproj'),
+		xcodeProjectConfigPath = iosProject.locations.pbxproj,
 		swiftBridgingHeaderPath = projectName + BRIDGING_HEADER_END,
 		swiftBridgingHeaderPathXcode = '"' + swiftBridgingHeaderPath + '"',
 		swiftOptions = [''], // <-- begin to file appending AFTER initial newline
@@ -184,7 +185,7 @@ module.exports = function (context) {
 		'".xcconfig" project file found: ' + getRelativeToProjectRootPath(xcconfigPath, projectRoot)
 	);
 
-	xcodeProject = xcode.project(xcodeProjectConfigPath);
+	var xcodeProject = xcode.project(iosProject.locations.pbxproj);
 
 	// Massaging the files
 
