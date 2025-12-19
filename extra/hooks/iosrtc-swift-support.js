@@ -26,16 +26,6 @@ var fs = require('fs'),
 
 // Helpers
 
-// Returns the project name
-function getProjectName(protoPath) {
-	var cordovaConfigPath = path.join(protoPath, 'config.xml'),
-		content = fs.readFileSync(cordovaConfigPath, 'utf-8');
-
-	var name = /<name.*>([\s\S]*)<\/name>/im.exec(content)[1].trim();
-
-	return xmlEntities.decode(name);
-}
-
 // Drops the comments
 var COMMENT_KEY = /_comment$/;
 function nonComments(obj) {
@@ -137,10 +127,10 @@ module.exports = function (context) {
 	}
 
 	var projectRoot = context.opts.projectRoot,
-		projectName = getProjectName(projectRoot),
 		platformPath = path.join(projectRoot, 'platforms', 'ios'),
 		iosProject = new cordova_ios('ios', platformPath),
 		platformProjectPath = iosProject.locations.xcodeCordovaProj,
+		projectName = platformProjectPath.split(path.sep).pop(),
 		xcconfigPath = path.join(platformPath, '/cordova/build.xcconfig'),
 		xcodeProjectConfigPath = iosProject.locations.pbxproj,
 		swiftBridgingHeaderPath = projectName + BRIDGING_HEADER_END,
